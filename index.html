@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>En god IBD-vård | Magtarmförbundet</title>
+    <style>
+        /* --- DESIGN SYSTEM & VARIABLER --- */
+        :root {
+            --primary: #6a1b9a;       /* Magtarm lila */
+            --primary-dark: #4a148c;
+            --primary-light: #f3e5f5;
+            --accent: #ab47bc;
+            --text-main: #2c3e50;
+            --text-light: #ffffff;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --success: #2e7d32;
+            --warning: #f57f17;
+            --alert: #d32f2f;
+            --shadow-soft: 0 4px 20px rgba(106, 27, 154, 0.1);
+            --shadow-hard: 0 4px 10px rgba(0,0,0,0.1);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #ce93d8;
+            --primary-dark: #ab47bc;
+            --primary-light: #2c1b30;
+            --accent: #e1bee7;
+            --text-main: #ececec;
+            --text-light: #121212;
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --shadow-soft: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* --- GLOBAL RESET --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
+            padding-bottom: 80px;
+        }
+
+        h1, h2, h3, h4 { margin-top: 0; color: var(--primary); font-weight: 700; }
+        p { margin-bottom: 1rem; }
+        a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 20px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-content h1 { color: white; font-size: 1.2rem; margin: 0; }
+        .header-content span { font-size: 0.8rem; opacity: 0.9; font-weight: 300; }
+        
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- NAVIGATION CARDS (HOME) --- */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow-hard);
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 6px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover, .card:active {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card-icon {
+            position: absolute;
+            top: -10px; right: -10px;
+            font-size: 5rem;
+            opacity: 0.05;
+            color: var(--primary);
+            pointer-events: none;
+        }
+
+        /* --- INFOGRAPHIC CSS --- */
+        .infographic-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            .infographic-container { grid-template-columns: 1fr; }
+        }
+        
+        .info-box {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hard);
+            text-align: center;
+        }
+        .illustration {
+            height: 150px;
+            width: 100%;
+            position: relative;
+            margin-bottom: 15px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        [data-theme="dark"] .illustration { background: #333; }
+
+        /* SVG Styles inside illustration */
+        .gut-svg { width: 100%; height: 100%; }
+        .gut-path { fill: none; stroke: #ccc; stroke-width: 15; stroke-linecap: round; }
+        .gut-inflamed { stroke: #e53935; stroke-width: 15; stroke-linecap: round; } /* Röd inflammation */
+        .gut-patchy { stroke-dasharray: 10, 15; stroke: #e53935; stroke-width: 15; stroke-linecap: round;}
+
+        /* --- SYMTOMKOLLEN (CHECKER) --- */
+        .checker-box {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hard);
+            text-align: center;
+        }
+        .question-step { display: none; animation: fadeUp 0.4s; }
+        .question-step.active { display: block; }
+        
+        .checker-btn {
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 200px;
+        }
+        .btn-yes { background-color: var(--alert); color: white; }
+        .btn-no { background-color: var(--success); color: white; }
+        .btn-start { background-color: var(--primary); color: white; }
+        
+        .result-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .result-alert { background-color: rgba(211, 47, 47, 0.1); border-left: 5px solid var(--alert); }
+        .result-ok { background-color: rgba(46, 125, 50, 0.1); border-left: 5px solid var(--success); }
+
+        /* --- VIEWS/PAGES --- */
+        .view { display: none; opacity: 0; animation: fadeUp 0.4s forwards; }
+        .view.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .back-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .back-bar span { font-size: 1.5rem; margin-right: 10px; }
+
+        /* --- TIMELINE --- */
+        .timeline-container { position: relative; padding-left: 30px; margin: 20px 0; }
+        .timeline-line {
+            position: absolute; left: 10px; top: 0; bottom: 0; width: 4px;
+            background: var(--primary-light); border-radius: 2px;
+        }
+        .timeline-step {
+            position: relative; margin-bottom: 30px; background: var(--bg-card);
+            padding: 15px; border-radius: 12px; box-shadow: var(--shadow-hard);
+            cursor: pointer; transition: var(--transition);
+        }
+        .timeline-step:hover { transform: translateX(5px); border-left: 4px solid var(--primary); }
+        .timeline-dot {
+            position: absolute; left: -34px; top: 15px; width: 20px; height: 20px;
+            background: var(--primary); border: 4px solid var(--bg-body);
+            border-radius: 50%; z-index: 2;
+        }
+        .step-detail {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+            background: var(--primary-light); border-radius: 8px; margin-top: 10px; padding: 0 10px;
+        }
+        .timeline-step.open .step-detail { max-height: 500px; padding: 10px; margin-top: 10px; }
+
+        /* --- TEAM & ACCORDION --- */
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .team-member {
+            background: var(--bg-card); padding: 20px 10px; text-align: center;
+            border-radius: 12px; box-shadow: var(--shadow-hard); cursor: pointer;
+            transition: var(--transition); border: 2px solid transparent;
+        }
+        .team-member:hover, .team-member.active { border-color: var(--primary); background: var(--primary-light); }
+        .team-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+        .team-desc {
+            display: none; background: var(--bg-card); padding: 20px;
+            border-radius: 12px; margin-top: 20px; box-shadow: var(--shadow-hard);
+            border-top: 4px solid var(--primary); animation: fadeUp 0.3s;
+        }
+
+        .accordion-item { background: var(--bg-card); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--shadow-hard); overflow: hidden; }
+        .accordion-header {
+            padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; font-weight: 600; background: rgba(0,0,0,0.02);
+        }
+        .accordion-header:hover { background: var(--primary-light); }
+        .accordion-content { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease; opacity: 0; }
+        .accordion-item.open .accordion-content { padding: 20px; max-height: 1000px; opacity: 1; }
+        .accordion-icon { transition: transform 0.3s; }
+        .accordion-item.open .accordion-icon { transform: rotate(180deg); }
+
+        /* --- DOWNLOAD SECTION --- */
+        .download-btn {
+            display: flex; align-items: center; background: var(--bg-card);
+            border: 1px solid var(--primary); color: var(--primary);
+            padding: 15px; border-radius: 10px; margin-bottom: 10px;
+            transition: var(--transition); cursor: pointer;
+        }
+        .download-btn:hover { background: var(--primary-light); }
+        .download-icon { font-size: 1.5rem; margin-right: 15px; }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 40px; padding: 30px 20px; text-align: center;
+            background: var(--bg-card); border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        .btn-action {
+            display: inline-block; background: var(--primary); color: white;
+            padding: 12px 30px; border-radius: 50px; margin-top: 10px;
+            font-weight: bold; box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4);
+            transition: transform 0.2s;
+        }
+        .btn-action:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body data-theme="light">
+
+<header>
+    <div class="header-content">
+        <h1>En god IBD-vård</h1>
+        <span>Ditt verktyg i vårdprocessen</span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+</header>
+
+<div class="container">
+
+    <!-- START VIEW -->
+    <div id="home" class="view active">
+        
+        <!-- INTRO TEXT -->
+        <div style="background:var(--primary-light); padding:25px; border-radius:16px; margin-bottom:30px;">
+            <h3 style="color:var(--primary-dark); margin-top:0;">Visste du att?</h3>
+            <p style="font-size:1rem; margin-bottom:0;">
+                Ungefär 1 av 3 som söker vård, söker för mag-/tarmproblem. Många har inte IBD, men ungefär 1 av 100 svenskar lever just nu med antingen Crohns sjukdom eller ulcerös kolit, som är de två sjukdomarna som tillsammans förkortas till IBD (inflammatory bowel disease/ inflammatorisk tarmsjukdom). Mellan tre och fyra procent av befolkningen i Sverige kan räkna med att få IBD under sin livstid.
+            </p>
+        </div>
+
+        <!-- INFOGRAPHIC: SKILLNAD MELLAN UC OCH CD -->
+        <h3>Vad är skillnaden?</h3>
+        <div class="infographic-container">
+            <!-- Ulcerös Kolit -->
+            <div class="info-box">
+                <h4>Ulcerös kolit (UC)</h4>
+                <div class="illustration">
+                    <!-- SVG Grafik för UC (Sammanhängande i tjocktarm) -->
+                    <svg class="gut-svg" viewBox="0 0 100 100">
+                        <!-- Tjocktarm kontur -->
+                        <path class="gut-path" d="M30,80 L30,30 L70,30 L70,80" />
+                        <!-- Inflammation (Solid Röd från botten upp till mitten) -->
+                        <path class="gut-inflamed" d="M70,80 L70,50" /> 
+                    </svg>
+                </div>
+                <p style="font-size:0.9rem;">
+                    Inflammationen är <strong>sammanhängande</strong> och börjar alltid i ändtarmen. Den drabbar endast <strong>tjocktarmen</strong> och enbart slemhinnans ytskikt.
+                </p>
+            </div>
+
+            <!-- Crohns Sjukdom -->
+            <div class="info-box">
+                <h4>Crohns sjukdom (CD)</h4>
+                <div class="illustration">
+                    <!-- SVG Grafik för CD (Fläckvis, kan vara överallt) -->
+                    <svg class="gut-svg" viewBox="0 0 100 100">
+                        <!-- Tjocktarm kontur -->
+                        <path class="gut-path" d="M30,80 L30,30 L70,30 L70,80" />
+                        <!-- Tunntarm (Mitten) -->
+                        <path class="gut-path" d="M40,50 L60,50" style="stroke-width:10;" />
+                        <!-- Inflammation (Fläckvis/Streckad röd) -->
+                        <path class="gut-patchy" d="M30,40 L30,60" /> <!-- Fläck i colon -->
+                        <path class="gut-patchy" d="M70,70 L70,75" /> <!-- Fläck i rektum -->
+                        <path class="gut-patchy" d="M45,50 L55,50" style="stroke-width:10;" /> <!-- Fläck i tunntarm -->
+                    </svg>
+                </div>
+                <p style="font-size:0.9rem;">
+                    Inflammationen kan uppstå <strong>var som helst</strong> i magtarmkanalen. Den uppträder ofta <strong>fläckvis</strong> ("skip lesions") och går djupare genom tarmväggen.
+                </p>
+            </div>
+        </div>
+
+        <hr style="border:0; border-top:1px solid rgba(0,0,0,0.1); margin:40px 0;">
+
+        <!-- SYMTOMKOLLEN KNAPP -->
+        <div style="text-align:center; margin-bottom:40px;">
+            <h3>Är du osäker på dina symtom?</h3>
+            <p>Använd vårt verktyg för att se om du bör söka vård.</p>
+            <button class="btn-action" onclick="goTo('symptom-checker')">Starta Symtomkollen</button>
+        </div>
+
+        <!-- MAIN MENU -->
+        <h3 style="margin-bottom:10px;">Välj spår</h3>
+        <div class="grid-menu">
+            <div class="card" onclick="goTo('part1')">
+                <div class="card-icon">🔍</div>
+                <h3>Del 1: Utredning & Diagnos</h3>
+                <p>För dig som väntar på utredning eller precis fått beskedet. Här visualiseras det standardiserade vårdförloppet.</p>
+            </div>
+
+            <div class="card" onclick="goTo('part2')">
+                <div class="card-icon">💊</div>
+                <h3>Del 2: Livet med IBD</h3>
+                <p>Behandlingstrappan, kirurgi, ditt vårdteam och rättigheter för dig med fastställd diagnos.</p>
+            </div>
+        </div>
+
+        <!-- DOWNLOADS -->
+        <div style="margin-top:40px;">
+            <h3>Ladda ner material</h3>
+            <p>Här kan du ladda ner våra detaljerade sammanfattningar som PDF.</p>
+            <a href="filer/del1.pdf" download class="download-btn">
+                <span class="download-icon">📄</span>
+                <div>
+                    <strong>Del 1: Primärvården</strong><br>
+                    <span style="font-size:0.8rem; opacity:0.7;">Från symtom till diagnos</span>
+                </div>
+            </a>
+            <a href="filer/del2.pdf" download class="download-btn">
+                <span class="download-icon">📄</span>
+                <div>
+                    <strong>Del 2: Specialistvården</strong><br>
+                    <span style="font-size:0.8rem; opacity:0.7;">Från diagnos till remission</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- SYMPTOM CHECKER VIEW -->
+    <div id="symptom-checker" class="view">
+        <div class="back-bar" onclick="goTo('home')"><span>←</span> Tillbaka</div>
+        
+        <div class="checker-box">
+            <h2>Symtomkollen</h2>
+            <p>Svara på frågorna nedan för att få en rekommendation. Detta är en förberedelse inför kontakt med vården.</p>
+            
+            <div id="quiz-container">
+                <!-- Fråga 1 -->
+                <div class="question-step active" data-step="1">
+                    <h3>1. Har du haft ont i magen eller kramper?</h3>
+                    <p>Ofta beskrivet som smärta som kommer och går, eller förvärras efter du ätit.</p>
+                    <button class="checker-btn btn-yes" onclick="answer(true)">Ja</button>
+                    <button class="checker-btn btn-no" onclick="answer(false)">Nej</button>
+                </div>
+
+                <!-- Fråga 2 -->
+                <div class="question-step" data-step="2">
+                    <h3>2. Har du haft lös mage (diarré) i mer än 7 dagar?</h3>
+                    <p>Detta kan vara kontinuerligt eller återkommande under en längre period.</p>
+                    <button class="checker-btn btn-yes" onclick="answer(true)">Ja</button>
+                    <button class="checker-btn btn-no" onclick="answer(false)">Nej</button>
+                </div>
+
+                <!-- Fråga 3 -->
+                <div class="question-step" data-step="3">
+                    <h3>3. Har du sett blod i din avföring?</h3>
+                    <p>Det kan vara rött, mörkrött eller göra vattnet i toaletten färgat.</p>
+                    <button class="checker-btn btn-yes" onclick="answer(true)">Ja</button>
+                    <button class="checker-btn btn-no" onclick="answer(false)">Nej</button>
+                </div>
+
+                <!-- Fråga 4 -->
+                <div class="question-step" data-step="4">
+                    <h3>4. Har du gått ner i vikt utan att försöka?</h3>
+                    <p>Oavsiktlig viktnedgång är ofta ett tecken på att kroppen inte tar upp näring eller kämpar mot inflammation.</p>
+                    <button class="checker-btn btn-yes" onclick="answer(true)">Ja</button>
+                    <button class="checker-btn btn-no" onclick="answer(false)">Nej</button>
+                </div>
+
+                <!-- Fråga 5 -->
+                <div class="question-step" data-step="5">
+                    <h3>5. Vaknar du på natten för att bajsa?</h3>
+                    <p>Att behöva gå på toaletten nattetid är ett vanligt tecken vid aktiv inflammation.</p>
+                    <button class="checker-btn btn-yes" onclick="answer(true)">Ja</button>
+                    <button class="checker-btn btn-no" onclick="answer(false)">Nej</button>
+                </div>
+            </div>
+
+            <!-- RESULTAT -->
+            <div id="result-container" style="display:none;" class="result-box">
+                <h3 id="result-title">Resultat</h3>
+                <p id="result-text"></p>
+                <div id="result-advice"></div>
+                <br>
+                <button class="checker-btn btn-start" onclick="resetQuiz()">Gör om testet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PART 1: UTREDNING VIEW -->
+    <div id="part1" class="view">
+        <div class="back-bar" onclick="goTo('home')"><span>←</span> Tillbaka</div>
+        
+        <h2>Del 1: Från symtom till diagnos</h2>
+        <p>Här visualiseras det standardiserade vårdförloppet (SVF). Målet är att du ska få en diagnos och starta behandling så snabbt som möjligt.</p>
+
+        <h3>Din tidslinje (Klicka på stegen)</h3>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <!-- Steg 1 -->
+            <div class="timeline-step" onclick="toggleStep(this)">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">Dag 0-3</span>
+                <h4>Kontakt & Bedömning</h4>
+                <div class="step-detail">
+                    <p><strong>Vad händer?</strong> Du kontaktar primärvården. En medicinsk bedömning ska göras inom 3 dagar (Vårdgarantin).</p>
+                    <p><strong>Prover:</strong> Man tar ofta avföringsprov (F-Kalprotektin) för att se om det finns inflammation i tarmen, samt blodprover (Hb, CRP).</p>
+                    <p><strong>Mål:</strong> Utesluta andra orsaker (infektion, IBS, celiaki).</p>
+                </div>
+            </div>
+
+            <!-- Steg 2 -->
+            <div class="timeline-step" onclick="toggleStep(this)">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">Inom 2 veckor</span>
+                <h4>Remiss till Specialist</h4>
+                <div class="step-detail">
+                    <p>Om misstanken om IBD är stark (t.ex. Kalprotektin > 150 mg/kg eller blod i avföringen) ska du remitteras till en specialist (Gastroenterolog).</p>
+                    <p><strong>Dina rättigheter:</strong> Du har rätt att veta att remissen är skickad och vart den skickats.</p>
+                </div>
+            </div>
+
+            <!-- Steg 3 -->
+            <div class="timeline-step" onclick="toggleStep(this)">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">Utan dröjsmål</span>
+                <h4>Endoskopi (Utredning)</h4>
+                <div class="step-detail">
+                    <p><strong>Undersökningen:</strong> En koloskopi (kameraundersökning av tarmen) genomförs för att se inflammationen och ta vävnadsprov (biopsi).</p>
+                    <p><strong>Viktigt:</strong> Du ska få information om förberedelser (laxering) i god tid.</p>
+                </div>
+            </div>
+
+            <!-- Steg 4 -->
+            <div class="timeline-step" onclick="toggleStep(this)">
+                <div class="timeline-dot"></div>
+                <span class="timeline-time">Diagnos & Start</span>
+                <h4>Diagnosbeskedet</h4>
+                <div class="step-detail">
+                    <p><strong>Beskedet:</strong> Ska ges inom en vecka efter fastställd diagnos om möjligt. Information ska ges både muntligt och skriftligt.</p>
+                    <p><strong>Vårdplan:</strong> En vårdplan ("Min vårdplan") ska upprättas. Här startas behandling (se Del 2).</p>
+                    <p><strong>SWIBREG:</strong> Du bör registreras i kvalitetsregistret för att säkra din vårdkvalitet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PART 2: LEVA MED IBD VIEW -->
+    <div id="part2" class="view">
+        <div class="back-bar" onclick="goTo('home')"><span>←</span> Tillbaka</div>
+        
+        <h2>Del 2: Behandling & Kronisk fas</h2>
+        <p>När diagnosen är ställd handlar vården om att uppnå "Remission" (symtomfrihet och läkt tarm) och bibehålla den.</p>
+
+        <h3>Ditt Vårdteam</h3>
+        <p>Klicka på ikonerna för att se vem som gör vad.</p>
+        <div class="team-grid">
+            <div class="team-member" onclick="showTeamInfo('gastro')">
+                <span class="team-icon">🩺</span>
+                <strong>Gastro-läkare</strong>
+            </div>
+            <div class="team-member" onclick="showTeamInfo('nurse')">
+                <span class="team-icon">💉</span>
+                <strong>IBD-sköterska</strong>
+            </div>
+            <div class="team-member" onclick="showTeamInfo('dietist')">
+                <span class="team-icon">🍎</span>
+                <strong>Dietist</strong>
+            </div>
+            <div class="team-member" onclick="showTeamInfo('kurator')">
+                <span class="team-icon">🧠</span>
+                <strong>Kurator</strong>
+            </div>
+            <div class="team-member" onclick="showTeamInfo('kirurg')">
+                <span class="team-icon">🔪</span>
+                <strong>Kirurg</strong>
+            </div>
+        </div>
+
+        <!-- Team Info Display Area -->
+        <div id="team-info-display" class="team-desc">
+            <h4 id="team-role-title"></h4>
+            <p id="team-role-desc"></p>
+        </div>
+
+        <h3 style="margin-top:40px;">Behandlingar</h3>
+        <p>Vården ska vara "Målstyrd" (Treat-to-Target). Det betyder att man inte nöjer sig förrän målen (t.ex. läkta slemhinnor) är uppnådda.</p>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Basläkemedel (5-ASA & Kortison)
+                <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content">
+                <p><strong>5-ASA:</strong> Grundbehandling vid Ulcerös kolit. Tas ofta som tabletter eller granulat dagligen för att behålla remission.</p>
+                <p><strong>Kortison:</strong> Används vid akuta skov (försämringar) för att snabbt dämpa inflammation. Ska inte användas som långtidsbehandling p.g.a. biverkningar.</p>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Immunmodulerare (Tiopuriner)
+                <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content">
+                <p>Läkemedel som Azatioprin. Dämpar immunförsvaret på längre sikt. Används ofta för att kunna trappa ut kortison och behålla remission.</p>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Biologiska läkemedel & Små molekyler
+                <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content">
+                <p>Används vid måttlig till svår sjukdom när annan behandling inte räcker.</p>
+                <ul>
+                    <li><strong>Anti-TNF (t.ex. Infliximab, Adalimumab):</strong> Ges via dropp eller spruta.</li>
+                    <li><strong>Integrinhämmare (t.ex. Vedolizumab):</strong> Tarmselektiv effekt.</li>
+                    <li><strong>IL-hämmare (t.ex. Ustekinumab):</strong> Påverkar specifika inflammationsvägar.</li>
+                    <li><strong>JAK-hämmare:</strong> Tabletter som verkar snabbt (främst vid Ulcerös kolit).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                4. Kirurgi
+                <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content">
+                <p>Ibland är kirurgi den bästa behandlingen. Beslut tas ofta i samråd med både medicinare och kirurg (Multidisciplinär konferens).</p>
+                <ul>
+                    <li><strong>Resektion:</strong> Man tar bort den sjuka delen av tarmen (vanligt vid Crohn).</li>
+                    <li><strong>Stomi:</strong> Påse på magen. Kan vara tillfällig eller permanent.</li>
+                    <li><strong>Bäckenreservoar (J-pouch):</strong> Vid Ulcerös kolit kan man ibland skapa en ny behållare av tunntarmen så man slipper stomi.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Kost & Nutrition
+                <span class="accordion-icon">▼</span>
+            </div>
+            <div class="accordion-content">
+                <p>Ingen specifik diet "botar" IBD, men anpassad kost kan lindra symtom. Vid skov ökar behovet av energi och protein. Risk för näringsbrist (järn, B12, D-vitamin) är stor och ska kontrolleras regelbundet.</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    <p><strong>Mag- och tarmförbundet</strong><br>Vi arbetar för att du ska få en bra vård.</p>
+    <a href="https://magotarm.se/stod-oss/bli-medlem/" target="_blank" class="btn-action">Bli medlem idag</a>
+    <div style="margin-top:20px; font-size:0.9rem;">
+        <a href="https://magotarm.se" target="_blank">Besök hemsidan</a> | 
+        <a href="https://magotarm.se/vilka-vi-ar/kontakta-oss-2/" target="_blank">Kontakta oss</a>
+    </div>
+    <p style="font-size:0.7rem; opacity:0.6; margin-top:20px;">Källa: Nationellt vårdprogram & Vårdförlopp IBD (2022/2023).</p>
+</footer>
+
+<script>
+    // --- NAVIGERING ---
+    function goTo(viewId) {
+        document.querySelectorAll('.view').forEach(el => {
+            el.classList.remove('active');
+            el.style.opacity = 0; // Reset animation
+        });
+        
+        const target = document.getElementById(viewId);
+        target.classList.add('active');
+        void target.offsetWidth; // Trigger reflow
+        window.scrollTo(0, 0);
+    }
+
+    // --- SYMTOMKOLLEN LOGIC ---
+    let currentStep = 1;
+    let score = 0;
+
+    function answer(isYes) {
+        if(isYes) score++;
+        
+        document.querySelector(`.question-step[data-step="${currentStep}"]`).classList.remove('active');
+        currentStep++;
+        
+        const nextQuestion = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+        
+        if (nextQuestion) {
+            nextQuestion.classList.add('active');
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const resContainer = document.getElementById('result-container');
+        const resText = document.getElementById('result-text');
+        const resAdvice = document.getElementById('result-advice');
+        
+        resContainer.style.display = 'block';
+
+        if (score > 0) {
+            resContainer.className = 'result-box result-alert';
+            resContainer.querySelector('h3').innerText = "Vår rekommendation: Sök vård";
+            resText.innerText = `Du svarade JA på ${score} av 5 frågor. Detta kan vara tecken på IBD eller annan magtarm-sjukdom.`;
+            resAdvice.innerHTML = `
+                <strong>Ta med detta till din läkare:</strong>
+                <ul>
+                    <li>Berätta att du har symtomen ovan.</li>
+                    <li>Be om att få ta avföringsprov (F-Kalprotektin) för att kolla inflammation.</li>
+                    <li>Be om blodprover (Hb, CRP).</li>
+                </ul>
+                <p>Enligt Vårdgarantin har du rätt till en medicinsk bedömning i primärvården inom 3 dagar.</p>
+            `;
+        } else {
+            resContainer.className = 'result-box result-ok';
+            resContainer.querySelector('h3').innerText = "Inga alarmsymtom just nu";
+            resText.innerText = "Dina svar indikerar inte de typiska alarmsymtomen för aktiv IBD just nu.";
+            resAdvice.innerHTML = "Om du ändå mår dåligt eller är orolig, kontakta alltid 1177 eller din vårdcentral för rådgivning.";
+        }
+    }
+
+    function resetQuiz() {
+        currentStep = 1;
+        score = 0;
+        document.getElementById('result-container').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        
+        document.querySelectorAll('.question-step').forEach(el => el.classList.remove('active'));
+        document.querySelector('.question-step[data-step="1"]').classList.add('active');
+    }
+
+    // --- TIMELINE LOGIC ---
+    function toggleStep(element) {
+        element.classList.toggle('open');
+    }
+
+    // --- ACCORDION LOGIC ---
+    function toggleAccordion(element) {
+        const item = element.parentElement;
+        item.classList.toggle('open');
+    }
+
+    // --- TEAM INFO LOGIC ---
+    const teamData = {
+        'gastro': {
+            title: 'Gastroenterolog (Specialistläkare)',
+            desc: 'Har det medicinska huvudansvaret. Ställer diagnos, beslutar om läkemedel (biologiska, immunhämmande) och leder uppföljningen. Ska se till att du når "remission" (symtomfrihet).'
+        },
+        'nurse': {
+            title: 'IBD-sjuksköterska',
+            desc: 'Din fasta vårdkontakt. Hjälper till med utbildning, receptförnyelse, provtagning och ger stöd i vardagen. Kan ofta nås direkt via telefon/1177 vid skov.'
+        },
+        'dietist': {
+            title: 'Dietist',
+            desc: 'Hjälper dig anpassa kosten för att minska symtom och undvika undernäring. Viktigt särskilt vid strikturer (trång tarm) eller efter operation.'
+        },
+        'kurator': {
+            title: 'Kurator / Psykolog',
+            desc: 'Erbjuder samtalsstöd. IBD påverkar livet, relationer och psykiskt mående (stress/oro). Du har rätt att få hjälp att hantera detta.'
+        },
+        'kirurg': {
+            title: 'Kolorektalkirurg',
+            desc: 'Specialist på tarmoperationer. Kopplas in om medicin inte hjälper tillräckligt eller vid komplikationer. Arbetar nära gastroenterologen.'
+        }
+    };
+
+    function showTeamInfo(role) {
+        const display = document.getElementById('team-info-display');
+        const title = document.getElementById('team-role-title');
+        const desc = document.getElementById('team-role-desc');
+        const cards = document.querySelectorAll('.team-member');
+
+        cards.forEach(c => c.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        title.innerText = teamData[role].title;
+        desc.innerText = teamData[role].desc;
+        
+        display.style.display = 'block';
+        display.scrollIntoView({behavior: "smooth", block: "nearest"});
+    }
+
+    // --- DARK MODE ---
+    function toggleTheme() {
+        const body = document.body;
+        const current = body.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', next);
+    }
+</script>
+
+</body>
+</html>
