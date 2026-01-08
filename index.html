@@ -71,20 +71,37 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
         .brand-container {
             display: flex;
             align-items: center;
-            max-width: 70%;
+            /* Låt loggan krympa vid behov så att den aldrig trycks utanför vyn */
+            min-width: 0;
+            flex: 1 1 auto;
         }
+
+        /* Gör länken till en flex-rad så att bilden kan begränsas av containern */
+        .brand-container a{
+            display:flex;
+            align-items:center;
+            min-width:0;
+            max-width:100%;
+        }
+
 
         /* Logotyp-hantering */
         .logo-img {
+            /* Höjden styr – men bredden får aldrig bli större än utrymmet i headern */
+            height: auto;
             max-height: 45px;
+            max-width: 100%;
             width: auto;
             display: block;
+            object-fit: contain;
         }
+
         
         /* Fallback text om loggan inte laddas */
         .logo-text {
@@ -106,6 +123,28 @@
             text-transform: uppercase;
             cursor: pointer;
             letter-spacing: 0.5px;
+        }
+
+        /* --- MOBIL: säkra att loggan inte klipper/överlappas --- */
+        @media (max-width: 520px) {
+            header{
+                padding: 12px 14px;
+                gap: 10px;
+            }
+            .theme-toggle{
+                padding: 5px 10px;
+                font-size: 0.72rem;
+                white-space: nowrap;
+                flex: 0 0 auto;
+            }
+            /* lämna plats för knappen och håll loggan inom vyn */
+            .brand-container{
+                max-width: calc(100% - 90px);
+            }
+            .logo-img{
+                max-height: 34px;
+                max-width: 100%;
+            }
         }
 
         /* --- CONTAINER --- */
